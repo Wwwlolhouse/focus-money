@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Focus → Money</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --accent: #22f2ef;
+      --accent2: #ff6803;
+      --bg: #0b0b0b;
+      --text: #f5f5f5;
+      --muted: #888888;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #111111 0, #050505 60%, #000000 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      background: rgba(11, 11, 11, 0.95);
+      border-radius: 24px;
+      padding: 24px 20px 16px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(34, 242, 239, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 10px rgba(34, 242, 239, 0.6);
+    }
+
+    .sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .timer-card {
+      margin-top: 8px;
+      border-radius: 20px;
+      padding: 24px 18px;
+      background:
+        radial-gradient(circle at top left, rgba(34, 242, 239, 0.17), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(255, 104, 3, 0.18), transparent 60%),
+        #050505;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-label {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mode-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+    }
+
+    .mode-dot.work {
+      background: var(--accent2);
+      box-shadow: 0 0 10px rgba(255, 104, 3, 0.6);
+    }
+
+    .mode-dot.break {
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(34, 242, 239, 0.6);
+    }
+
+    .money-display {
+      font-size: 40px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-top: 6px;
+      margin-bottom: 4px;
+    }
+
+    .money-display span {
+      font-size: 18px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+
+    .time-display {
+      font-size: 32px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      margin: 2px 0 6px;
+      opacity: 0.9;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s ease, opacity 0.15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent2), #ff9c4a);
+      color: #0b0b0b;
+      box-shadow: 0 12px 25px rgba(255, 104, 3, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 15, 15, 0.95);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .summary {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .summary-item {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(6, 6, 6, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+
+    .summary-value {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .goal-wrap {
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .goal-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .goal-strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.2s ease-out;
+    }
+
+    .footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .btn-stop {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      cursor: pointer;
+      padding: 4px 0;
+      opacity: 0.7;
+    }
+
+    .btn-stop:hover {
+      opacity: 1;
+      color: #ffb187;
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        padding: 20px 16px 12px;
+      }
+      .money-display {
+        font-size: 32px;
+      }
+      .time-display {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <div class="title">
+          <span class="title-dot"></span>
+          Focus → Money
+        </div>
+        <div class="sub">6h daily goal · $20/hour</div>
+      </div>
+      <div class="sub" id="todayDate"></div>
+    </div>
+
+    <div class="timer-card">
+      <div class="mode-label">
+        <span class="mode-dot work" id="modeDot"></span>
+        <span id="modeText">Mode: Work</span>
+      </div>
+
+      <div class="money-display" id="moneyBig">$0.00 <span>earned</span></div>
+      <div class="time-display" id="timeDisplay">25:00</div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">Start</button>
+        <button class="btn btn-secondary" id="pauseBtn" disabled>Pause</button>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-item">
+        <div class="summary-label">Focus today</div>
+        <div class="summary-value" id="timeTotal">0 h 0 m</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Earned</div>
+        <div class="summary-value" id="moneyTotal">$0.00</div>
+      </div>
+    </div>
+
+    <div class="goal-wrap">
+      <div class="goal-top">
+        <span>Goal: 6 h</span>
+        <span class="goal-strong" id="goalLabel">0 h 0 m / 6 h</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-bar-inner" id="goalProgress"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="btn-stop" id="stopBtn">STOP</button>
+      <span>1 h = $20</span>
+    </div>
+  </div>
+
+  <script>
+    // settings
+    const WORK_DURATION = 25 * 60;
+    const BREAK_DURATION = 5 * 60;
+    const DAILY_GOAL_SECONDS = 6 * 60 * 60;
+    const HOURLY_RATE = 20;
+    const STORAGE_KEY = "pomodoro_money_daily_safe";
+
+    // state
+    let mode = "work";
+    let remainingSeconds = WORK_DURATION;
+    let timerId = null;
+    let isRunning = false;
+    let totalWorkSeconds = 0;
+    const todayKey = new Date().toISOString().slice(0, 10);
+
+    // safe element getter
+    function getEl(id) {
+      const el = document.getElementById(id);
+      return el || null;
+    }
+
+    const timeDisplay   = getEl("timeDisplay");
+    const modeText      = getEl("modeText");
+    const modeDot       = getEl("modeDot");
+    const startBtn      = getEl("startBtn");
+    const pauseBtn      = getEl("pauseBtn");
+    const stopBtn       = getEl("stopBtn");
+    const timeTotalEl   = getEl("timeTotal");
+    const moneyTotalEl  = getEl("moneyTotal");
+    const moneyBigEl    = getEl("moneyBig");
+    const goalLabel     = getEl("goalLabel");
+    const goalProgress  = getEl("goalProgress");
+    const todayDateEl   = getEl("todayDate");
+
+    function formatTimer(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function formatHoursMinutes(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      return `${h} h ${m} m`;
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data.date === todayKey && typeof data.totalWorkSeconds === "number") {
+          totalWorkSeconds = data.totalWorkSeconds;
+        }
+      } catch (e) {
+        console.error("Storage load error", e);
+      }
+    }
+
+    function saveToStorage() {
+      try {
+        const payload = { date: todayKey, totalWorkSeconds };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {
+        console.error("Storage save error", e);
+      }
+    }
+
+    function updateSummaryUI() {
+      try {
+        const money = (totalWorkSeconds / 3600) * HOURLY_RATE;
+        const moneyText = `$${money.toFixed(2)}`;
+
+        if (timeTotalEl) {
+          timeTotalEl.textContent = formatHoursMinutes(totalWorkSeconds);
+        }
+        if (moneyTotalEl) {
+          moneyTotalEl.textContent = moneyText;
+        }
+        if (moneyBigEl) {
+          moneyBigEl.innerHTML = `${moneyText} <span>earned</span>`;
+        }
+
+        const clamped = Math.min(totalWorkSeconds, DAILY_GOAL_SECONDS);
+        const percent = (clamped / DAILY_GOAL_SECONDS) * 100;
+
+        if (goalLabel) {
+          goalLabel.textContent = `${formatHoursMinutes(totalWorkSeconds)} / 6 h`;
+        }
+        if (goalProgress) {
+          goalProgress.style.width = `${percent}%`;
+        }
+      } catch (e) {
+        console.error("updateSummaryUI error", e);
+      }
+    }
+
+    function updateModeUI() {
+      if (!modeText || !modeDot) return;
+
+      if (mode === "work") {
+        modeText.textContent = "Mode: Work";
+        modeDot.classList.add("work");
+        modeDot.classList.remove("break");
+      } else {
+        modeText.textContent = "Mode: Break";
+        modeDot.classList.remove("work");
+        modeDot.classList.add("break");
+      }
+    }
+
+    function updateTimerUI() {
+      if (!timeDisplay) return;
+      timeDisplay.textContent = formatTimer(remainingSeconds);
+    }
+
+    function setRunning(running) {
+      isRunning = running;
+      if (startBtn) {
+        startBtn.textContent = running ? "Running" : "Start";
+      }
+      if (pauseBtn && !running) {
+        pauseBtn.disabled = true;
+      } else if (pauseBtn && running) {
+        pauseBtn.disabled = false;
+      }
+    }
+
+    function tick() {
+      if (!isRunning) return;
+
+      try {
+        remainingSeconds = Math.max(remainingSeconds - 1, 0);
+
+        if (mode === "work") {
+          totalWorkSeconds += 1;
+          saveToStorage();
+        }
+
+        updateSummaryUI();
+        updateTimerUI();
+
+        if (remainingSeconds === 0) {
+          mode = mode === "work" ? "break" : "work";
+          remainingSeconds = mode === "work" ? WORK_DURATION : BREAK_DURATION;
+          updateModeUI();
+          updateTimerUI();
+        }
+      } catch (e) {
+        console.error("tick error", e);
+      }
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      setRunning(true);
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(tick, 1000);
+    }
+
+    function pauseTimer() {
+      if (!isRunning) return;
+      setRunning(false);
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function stopTimer() {
+      setRunning(false);
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      if (pauseBtn) pauseBtn.disabled = true;
+      remainingSeconds = mode === "work" ? WORK_DURATION : BREAK_DURATION;
+      updateTimerUI();
+    }
+
+    function initDateLabel() {
+      if (!todayDateEl) return;
+      const d = new Date();
+      const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+      todayDateEl.textContent = d.toLocaleDateString("en-GB", options);
+    }
+
+    // init
+    loadFromStorage();
+    initDateLabel();
+    updateSummaryUI();
+    updateModeUI();
+    updateTimerUI();
+
+    if (startBtn) startBtn.addEventListener("click", startTimer);
+    if (pauseBtn) pauseBtn.addEventListener("click", pauseTimer);
+    if (stopBtn) stopBtn.addEventListener("click", stopTimer);
+  </script>
+</body>
+</html>
